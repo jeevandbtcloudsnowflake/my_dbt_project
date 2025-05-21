@@ -41,22 +41,22 @@ jobs:
         # Create the .dbt directory
         New-Item -ItemType Directory -Path "$env:USERPROFILE\.dbt" -Force
 
-        # Define the profiles.yml content
-        $profileContent = @"
-    my_dbt_project:
-      outputs:
-        dev:
-          type: snowflake
-          account: $env:SNOWFLAKE_ACCOUNT
-          user: $env:SNOWFLAKE_USER
-          password: $env:SNOWFLAKE_PASSWORD
-          role: $env:SNOWFLAKE_ROLE
-          warehouse: $env:SNOWFLAKE_WAREHOUSE
-          database: $env:SNOWFLAKE_DATABASE
-          schema: $env:SNOWFLAKE_SCHEMA
-          threads: 4    
-      target: dev
-    "@
+      # Define the profiles.yml content
+      $profileContent = @"
+      my_dbt_project:
+        outputs:
+          dev:
+            type: snowflake
+            account: $env:SNOWFLAKE_ACCOUNT
+            user: $env:SNOWFLAKE_USER
+            password: $env:SNOWFLAKE_PASSWORD
+            role: $env:SNOWFLAKE_ROLE
+            warehouse: $env:SNOWFLAKE_WAREHOUSE
+            database: $env:SNOWFLAKE_DATABASE
+            schema: $env:SNOWFLAKE_SCHEMA
+            threads: 4    
+        target: dev
+      "@
         # Write the content to profiles.yml
         $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
         $profileContent | Out-File -FilePath $profilePath -Encoding ascii
