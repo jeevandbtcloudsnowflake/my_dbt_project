@@ -29,6 +29,14 @@ jobs:
 
     - name: Configure profiles.yml
       shell: pwsh
+      env:
+        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+        SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+        SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
       run: |
         # Create the .dbt directory
         New-Item -ItemType Directory -Path "$env:USERPROFILE\.dbt" -Force
@@ -39,18 +47,19 @@ jobs:
       outputs:
         dev:
           type: snowflake
-          account: your_snowflake_account
-        user: your_snowflake_user
-        password: your_snowflake_password
-        role: your_snowflake_role
-        warehouse: your_snowflake_warehouse
-        threads: 4    
+          account: $env:SNOWFLAKE_ACCOUNT
+          user: $env:SNOWFLAKE_USER
+          password: $env:SNOWFLAKE_PASSWORD
+          role: $env:SNOWFLAKE_ROLE
+          warehouse: $env:SNOWFLAKE_WAREHOUSE
+          database: $env:SNOWFLAKE_DATABASE
+          schema: $env:SNOWFLAKE_SCHEMA
+          threads: 4    
       target: dev
-"@
-
-      # Write the content to profiles.yml
-      $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
-      $profileContent | Out-File -FilePath $profilePath -Encoding ascii
+    "@
+        # Write the content to profiles.yml
+        $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
+        $profileContent | Out-File -FilePath $profilePath -Encoding ascii
 
 
     - name: dbt deps
