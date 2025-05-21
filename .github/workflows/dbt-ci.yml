@@ -28,10 +28,30 @@ jobs:
         pip install dbt-snowflake  # or dbt-core + your adapter
 
     - name: Configure profiles.yml
+      shell: pwsh
       run: |
-        mkdir %USERPROFILE%\.dbt
-        echo "your profiles.yml content here" > %USERPROFILE%\.dbt\profiles.yml
-      # Alternatively, use secrets and write profiles.yml dynamically
+        # Create the .dbt directory
+        New-Item -ItemType Directory -Path "$env:USERPROFILE\.dbt" -Force
+
+        # Define the profiles.yml content
+        $profileContent = @"
+    my_dbt_project:
+      outputs:
+        dev:
+          type: snowflake
+          account: your_snowflake_account
+        user: your_snowflake_user
+        password: your_snowflake_password
+        role: your_snowflake_role
+        warehouse: your_snowflake_warehouse
+        threads: 4    
+      target: dev
+"@
+
+      # Write the content to profiles.yml
+      $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
+      $profileContent | Out-File -FilePath $profilePath -Encoding ascii
+
 
     - name: dbt deps
       run: dbt deps
