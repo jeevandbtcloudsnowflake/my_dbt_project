@@ -60,7 +60,7 @@ jobs:
           $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
           $profileContent | Out-File -FilePath $profilePath -Encoding ascii
 
-      - name: dbt deps (development deps)
+      - name: dbt deps (development dependency checks)
         run: dbt deps  --development
 
       - name: dbt run (development run)
