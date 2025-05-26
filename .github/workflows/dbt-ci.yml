@@ -61,10 +61,10 @@ jobs:
           $profileContent | Out-File -FilePath $profilePath -Encoding ascii
 
       - name: dbt deps (development dependency checks..)
-        run: dbt deps  --development
+        run: dbt deps  --target DEV
 
       - name: dbt run (development run)
-        run: dbt run  --development
+        run: dbt run  --target DEV
 
       - name: dbt test (development tests)
-        run: dbt test  --development
+        run: dbt test  --target DEV
