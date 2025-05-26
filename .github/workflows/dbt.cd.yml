@@ -1,0 +1,65 @@
+name: dbt Continuous Deployment
+
+on:
+  push:
+    branches:
+      - PROD  # Or your production branch name
+
+jobs:
+  deploy-prod:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dbt and dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-snowflake
+
+      - name: Configure profiles.yml for Production
+        shell: pwsh
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT_P }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER_P }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD_P }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE_P }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE_P }}
+          SNOWFLAKE_PROD_DATABASE: ${{ secrets.SNOWFLAKE_PROD_DATABASE_P }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA_P }}
+        run: |
+          New-Item -ItemType Directory -Path "$env:USERPROFILE\.dbt" -Force
+
+          $profileContent = @"
+my_dbt_project:
+  outputs:
+    prod:
+      type: snowflake
+      account: $env:SNOWFLAKE_ACCOUNT
+      user: $env:SNOWFLAKE_USER
+      password: $env:SNOWFLAKE_PASSWORD
+      role: $env:SNOWFLAKE_ROLE
+      warehouse: $env:SNOWFLAKE_WAREHOUSE
+      database: $env:SNOWFLAKE_PROD_DATABASE
+      schema: $env:SNOWFLAKE_SCHEMA
+      threads: 4
+  target: prod
+"@
+
+          $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
+          $profileContent | Out-File -FilePath $profilePath -Encoding ascii
+
+      - name: dbt deps  (production)
+        run: dbt deps   --target prod
+
+      - name: dbt run (production)
+        run: dbt run --target prod
+
+      - name: dbt test (production)
+        run: dbt test --target prod
