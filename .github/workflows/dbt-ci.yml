@@ -3,11 +3,12 @@ name: dbt CI/CD
 on:
   push:
     branches:
-      - main
+      - DEV
   pull_request:
     branches:
-      - main
-
+      - DEV
+  schedule:
+    - cron: '45 8 * * *'  # Daily at 13:45 IST (08:15 UTC)
 jobs:
   dbt-run:
     runs-on: windows-latest
@@ -60,11 +61,11 @@ jobs:
           $profilePath = "$env:USERPROFILE\.dbt\profiles.yml"
           $profileContent | Out-File -FilePath $profilePath -Encoding ascii
 
-      - name: dbt deps
-        run: dbt deps
+      - name: dbt deps (development dependency checks..)
+        run: dbt deps  --target dev
 
-      - name: dbt run
-        run: dbt run
+      - name: dbt run (development run)
+        run: dbt run  --target dev
 
-      - name: dbt test
-        run: dbt test
+      - name: dbt test (development tests)
+        run: dbt test  --target dev
