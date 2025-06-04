@@ -7,7 +7,8 @@ on:
   pull_request:
     branches:
       - DEV
-
+  schedule:
+    - cron: '45 8 * * *'  # Daily at 13:45 IST (08:15 UTC)
 jobs:
   dbt-run:
     runs-on: windows-latest
